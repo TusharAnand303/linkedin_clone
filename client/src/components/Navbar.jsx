@@ -70,6 +70,7 @@ const Navbar = () => {
             placeholder="Search"
           />
         </div>
+        {/* main div  */}
 
         {/* logo div  */}
         <div className="flex justify-center items-center md:gap-10 gap-8 md:mr-[130px] mt-1">
