@@ -14,7 +14,8 @@ const LinkedInHome = () => {
   const [heart, setHeart] = useState(false);
   const [userPost, setUserPost] = useState(null);
   const [time, setTime] = useState(null);
-  const [like, setLike] = useState('');
+  const [like, setLike] = useState("");
+  const [del, setDel] = useState(false);
 
   const userEmail = localStorage.getItem("userEmail");
   const userDisplayName = localStorage.getItem("userDisplayName");
@@ -22,6 +23,7 @@ const LinkedInHome = () => {
 
   const mEmail = localStorage.getItem("muserEmail");
   const mName = localStorage.getItem("mname");
+  // console.log("post",userPost)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,12 +31,14 @@ const LinkedInHome = () => {
         const email = userEmail || mEmail;
         const response = await axios.get(`/api/v1/getpost?email=${email}`);
         const data = response.data;
-        // console.log(data.message.updatedAt)
-        const time = data.message.updatedAt
+        // console.log(data.message._id)
+        const time = data.message.updatedAt;
         const utcDate = new Date(time);
-        const localDate = new Date(utcDate.getTime() - (utcDate.getTimezoneOffset() * 60000));
+        const localDate = new Date(
+          utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
+        );
 
-        setTime(localDate.toLocaleString())
+        setTime(localDate.toLocaleString());
 
         setUserPost(data.message.message);
       } catch (error) {
@@ -45,7 +49,6 @@ const LinkedInHome = () => {
     fetchData();
   }, []);
 
-
   useEffect(() => {
     window.scrollTo(0, 0);
   });
@@ -53,7 +56,7 @@ const LinkedInHome = () => {
   const fillHeart = () => {
     if (heart === 1) {
       setHeart(0);
-      setLike('');
+      setLike("");
     } else {
       setHeart(1);
       setLike(1);
@@ -100,6 +103,23 @@ const LinkedInHome = () => {
         .catch((err) => {
           console.log(err);
         });
+    }
+  };
+
+  const deletePost = async (msgId) => {
+    setDel(true);
+    try {
+      const response = await axios.post("/api/v1/deletepost", {
+        email: userEmail || mEmail,
+        messageId: msgId,
+      });
+      setTimeout(() => {
+        setDel(false);
+        toast.success(response.data.message);
+        window.location.reload();
+      }, 3000);
+    } catch (error) {
+      toast.error("Error deleting message:", error);
     }
   };
 
@@ -234,8 +254,8 @@ const LinkedInHome = () => {
                 onClick={refresh}
               >
                 <div className="flex justify-center items-center">
-                <p className="text-[12px] font-semibold mr-2">Refresh </p>
-                <div className="">
+                  <p className="text-[12px] font-semibold mr-2">Refresh </p>
+                  <div className="">
                     <i className="ri-loader-2-fill"></i>
                   </div>
                 </div>
@@ -273,10 +293,10 @@ const LinkedInHome = () => {
                           Delivering High-Quality Projects with Latest
                           Techonology.
                         </span>
-                        {/* getting the  post  */}
+                        {/* Getting the post */}
                         <h1 className="mt-2">{posts.msg}</h1>
-                        {/* ending getting post  */}
-                        <div className="flex justify-center gap-20 mt-5 items-center">
+                        {/* Ending getting post */}
+                        <div className="flex justify-center gap-20 mt-7 items-center">
                           <div
                             className="flex justify-center items-center cursor-pointer"
                             onClick={fillHeart}
@@ -299,6 +319,29 @@ const LinkedInHome = () => {
                           <div className="flex justify-center items-center cursor-pointer">
                             <i className="ri-stackshare-line"></i>
                             <span className="text-sm ml-2 text-md">Share</span>
+                          </div>
+                          <div
+                            className="flex justify-center items-center cursor-pointer text-red-500"
+                            onClick={() => deletePost(posts._id)}
+                          >
+                            {del ? (
+                              <>
+                                
+                                <div className="-ml-3 animate-spin text-xl">
+                                  <i className="ri-loader-2-fill"></i>
+                                </div>
+                                <span className="ml-2 text-sm text-md ">
+                                  Deleting
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <i className="ri-delete-bin-line"></i>
+                                <span className="text-sm ml-2 text-md">
+                                  Delete
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>

@@ -104,6 +104,38 @@ router.get('/api/v1/getpost', async (req, res) => {
     }
 });
 
+router.post('/api/v1/deletepost', async (req, res) => {
+    const { email, messageId } = req.body;
+    
+    try {
+      const googleUser = await Google.findOne({ email: email });
+  
+      if (googleUser) {
+        const messageToDelete = googleUser.message.find((message) => message._id.toString() === messageId);
+  
+        if (messageToDelete) {
+          googleUser.message.pull({ _id: messageToDelete._id });
+          
+          const savedGoogleUser = await googleUser.save();
+  
+          if (savedGoogleUser) {
+            return res.status(200).json({ message: 'Post deleted successfully', success: true });
+          } else {
+            return res.status(500).json({ message: 'Server error', success: false });
+          }
+        } else {
+          return res.status(404).json({ message: 'Message not found', success: false });
+        }
+      } else {
+        return res.status(404).json({ message: 'User not found', success: false });
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      return res.status(500).json({ message: 'Server error', success: false });
+    }
+  });
+
+
 
 export default router;
 

@@ -67,6 +67,7 @@ const Navbar = () => {
           <input
             type="text"
             className="bg-blue-100/70 w-[230px] h-[35px] outline-none pl-2 md:block hidden"
+            placeholder="Search"
           />
         </div>
 
